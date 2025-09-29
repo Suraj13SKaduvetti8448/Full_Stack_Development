@@ -1,0 +1,214 @@
+i need to make a practical on docker
+such that first we create a linux container and then create an development environment in the linux container, then install java and git in the linux env, then create a multi function calculator program in java and then run the program in the linux env
+
+we need to do it three ways one be the windows cmd using docker commands (both methods direct command calling and second creating docker file as well), other is docker gui and third is the docker terminal using docker commands
+
+
+
+To create a practical that demonstrates using Docker in three different ways (Windows CMD, Docker GUI, and Docker Terminal), we’ll go step-by-step with a common goal:
+
+---
+
+### ✅ **Goal of the Practical:**
+
+Create a **Linux container**, set up a **Java development environment**, install **Java and Git**, write a **multi-function calculator in Java**, and run it inside the container.
+
+---
+
+## ⚙️ Technologies & Tools Used:
+
+* **Docker** (installed and running)
+* **Base image**: Ubuntu (Linux)
+* **Java**: JDK 11+
+* **Git**
+* **Editor (optional)**: VS Code (for writing Java code)
+* **Docker Desktop** GUI
+* **CMD/Terminal**
+
+---
+
+## 🧭 3 Approaches to Achieve the Same Setup
+
+---
+
+## ✅ **1. Using Windows CMD / PowerShell**
+
+### 🔸 Method A: Direct Docker Commands (without Dockerfile)
+
+```bash
+# Step 1: Pull Ubuntu Image
+docker pull ubuntu
+
+# Step 2: Run a new container interactively
+docker run -it --name java-dev-env ubuntu
+
+# Now you're inside the container terminal (Linux shell)
+
+# Step 3: Update and install Java & Git
+apt update
+apt install -y openjdk-11-jdk git
+
+# Step 4: Verify installations
+java -version
+git --version
+
+# Step 5: Create Java calculator app
+mkdir CalculatorApp
+cd CalculatorApp
+nano Calculator.java
+```
+
+**Sample Java code (`Calculator.java`):**
+
+```java
+import java.util.Scanner;
+
+public class Calculator {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        while (true) {
+            System.out.println("Choose operation (+, -, *, /) or 'exit': ");
+            String op = sc.next();
+            if (op.equals("exit")) break;
+            System.out.print("Enter first number: ");
+            double a = sc.nextDouble();
+            System.out.print("Enter second number: ");
+            double b = sc.nextDouble();
+            switch (op) {
+                case "+": System.out.println("Result: " + (a + b)); break;
+                case "-": System.out.println("Result: " + (a - b)); break;
+                case "*": System.out.println("Result: " + (a * b)); break;
+                case "/": System.out.println("Result: " + (a / b)); break;
+                default: System.out.println("Invalid operation");
+            }
+        }
+        sc.close();
+    }
+}
+```
+
+```bash
+# Step 6: Compile & Run
+javac Calculator.java
+java Calculator
+```
+
+---
+
+### 🔸 Method B: Using Dockerfile
+
+#### 📁 Project Structure (on host):
+
+```
+DockerJava/
+├── Dockerfile
+└── Calculator.java
+```
+
+#### 🔹 Dockerfile:
+
+```Dockerfile
+FROM ubuntu
+
+RUN apt update && apt install -y openjdk-11-jdk git
+
+WORKDIR /app
+COPY Calculator.java .
+
+RUN javac Calculator.java
+
+CMD ["java", "Calculator"]
+```
+
+#### 🔹 Build & Run:
+
+```bash
+cd DockerJava
+docker build -t java-calculator .
+docker run -it java-calculator
+```
+
+---
+
+## ✅ **2. Using Docker GUI (Docker Desktop)**
+
+> Docker Desktop GUI does not provide full scripting, but you can do this manually.
+
+### Steps:
+
+1. **Open Docker Desktop**
+2. **Go to "Images" tab** → Search & Pull `ubuntu` image
+3. **Click "Run"** on the `ubuntu` image
+4. Set container name: `java-gui-env`, click **Run**
+5. Inside the running container:
+
+   * Click **CLI** or use **"Exec Console"**
+   * Run commands:
+
+     ```bash
+     apt update
+     apt install -y openjdk-11-jdk git
+     mkdir CalculatorApp
+     cd CalculatorApp
+     apt install -y nano
+     nano Calculator.java
+     javac Calculator.java
+     java Calculator
+     ```
+6. You can also mount volumes to inject code from host system.
+
+---
+
+## ✅ **3. Using Docker Terminal (Linux terminal inside Docker Desktop)**
+
+> This refers to using Docker inside a WSL2/Linux terminal (or the CLI provided in Docker Desktop if installed)
+
+### Steps:
+
+1. Open **Docker Terminal** (Docker CLI)
+2. Use same commands as in method 1-A or 1-B.
+
+   ```bash
+   docker run -it --name java-terminal-env ubuntu
+   # Inside container:
+   apt update
+   apt install -y openjdk-11-jdk git
+   mkdir CalculatorApp
+   cd CalculatorApp
+   nano Calculator.java
+   javac Calculator.java
+   java Calculator
+   ```
+
+> You can also copy files from your host system using:
+
+```bash
+docker cp Calculator.java java-terminal-env:/CalculatorApp/
+```
+
+---
+
+## 📄 Summary Table
+
+| Method                      | Tools Used                   | File Needed       | Highlights                          |
+| --------------------------- | ---------------------------- | ----------------- | ----------------------------------- |
+| **1-A CMD (Direct)**        | `docker run`, `apt install`  | No                | Manual setup inside container       |
+| **1-B CMD (Dockerfile)**    | `Dockerfile`, `build`, `run` | Dockerfile + Java | Repeatable, clean, automated setup  |
+| **2 GUI (Docker Desktop)**  | Docker Desktop GUI           | Optional          | Visual, beginner-friendly           |
+| **3 Docker Terminal (CLI)** | Docker CLI                   | Optional          | Similar to CMD, inside Docker shell |
+
+---
+
+## 💡 Tip:
+
+To persist the source code or work on it outside the container, you can use **volumes**:
+
+```bash
+docker run -it -v ${PWD}:/app ubuntu
+```
+
+This mounts your current folder into the `/app` folder of the container.
+
+---
+
+Would you like a ready-made `.zip` with the `Dockerfile` and `Calculator.java` or help preparing documentation/screenshots for submission or presentation?
